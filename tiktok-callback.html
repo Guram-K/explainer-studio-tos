@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Connecting TikTok · Explainer Studio</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header><img src="icon.png" alt=""><a href="./">Explainer Studio</a></header>
+  <h1 id="title">Connecting TikTok…</h1>
+  <p id="msg">Handing the sign-in to Explainer Studio on this computer.</p>
+  <div id="manual" hidden>
+    <p>If Explainer Studio runs on another computer, or this page doesn't move on, copy this address and paste it into the <b>TikTok drafts</b> card in the app:</p>
+    <div class="box" id="addr"></div>
+    <button id="copy" type="button">Copy address</button>
+  </div>
+</main>
+<script>
+  // TikTok only redirects to https pages, so it sends the sign-in code here. This page passes it on to the
+  // app on this computer (http://127.0.0.1:4777). Nothing is stored or sent anywhere else.
+  (function () {
+    var q = location.search;
+    var params = new URLSearchParams(q);
+    var addr = document.getElementById("addr");
+    addr.textContent = location.href;
+    document.getElementById("copy").onclick = function () {
+      navigator.clipboard.writeText(location.href).then(function () { document.getElementById("copy").textContent = "Copied"; });
+    };
+    if (params.get("error")) {
+      document.getElementById("title").textContent = "TikTok didn't connect";
+      document.getElementById("msg").textContent = "TikTok said: " + (params.get("error_description") || params.get("error"));
+      return;
+    }
+    if (!params.get("code")) {
+      document.getElementById("title").textContent = "Nothing to connect";
+      document.getElementById("msg").textContent = "This page is used by Explainer Studio when you connect TikTok. Start from the app's Connect TikTok button.";
+      return;
+    }
+    document.getElementById("manual").hidden = false;
+    location.replace("http://127.0.0.1:4777/oauth/tiktok/callback" + q);
+  })();
+</script>
+</body>
+</html>
